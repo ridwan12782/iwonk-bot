@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#e7f5e9] p-4">
+<div class="max-w-sm mx-auto">
+  <div class="bg-white rounded-[20px] p-4 shadow mb-4">
+    <h1 class="font-bold text-lg">🌐 IWONK NET - BOT PPPoE</h1>
+    <div class="grid grid-cols-2 gap-2 mt-3">
+      <div class="bg-green-100 rounded-xl p-3">✅ Aktif<br><b id="aktif">-</b></div>
+      <div class="bg-red-100 rounded-xl p-3">✖️ Off<br><b id="off">-</b></div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-[20px] p-3 shadow">
+    <input id="nama" placeholder="Nama pelanggan, ex: Kamar" class="w-full border rounded-xl p-3 mb-3">
+    <div class="grid grid-cols-2 gap-2">
+      <button onclick="send('/cek '+val())" class="bg-blue-500 text-white p-3 rounded-xl">🔍 Cek</button>
+      <button onclick="send('/aktif')" class="bg-green-500 text-white p-3 rounded-xl">📊 Aktif</button>
+      <button onclick="send('/kick '+val())" class="bg-yellow-500 text-white p-3 rounded-xl">🦶 Kick</button>
+      <button onclick="send('/total')" class="bg-purple-500 text-white p-3 rounded-xl">📈 Total</button>
+      <button onclick="send('/hapus '+val())" class="bg-orange-500 text-white p-3 rounded-xl">🗑️ Hapus</button>
+      <button onclick="send('/hapusaktif '+val())" class="bg-red-500 text-white p-3 rounded-xl">💥 HapusAktif</button>
+    </div>
+  </div>
+</div>
+<script>
+let tg = window.Telegram.WebApp; tg.expand();
+function val(){ return document.getElementById('nama').value.trim(); }
+function send(cmd){
+  if(!cmd || cmd.endsWith(' ')){ tg.showAlert('Isi nama dulu bos'); return; }
+  tg.sendData(cmd); // ini yang bakal kebaca MikroTik lu
+  tg.close();
+}
+</script>
+</body>
+</html>
