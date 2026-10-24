@@ -1,40 +1,45 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IWONK NET - BOT PPPoE</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-[#e7f5e9] p-4">
-<div class="max-w-sm mx-auto">
-  <div class="bg-white rounded-[20px] p-4 shadow mb-4">
-    <h1 class="font-bold text-lg">🌐 IWONK NET - BOT PPPoE</h1>
-    <div class="grid grid-cols-2 gap-2 mt-3">
-      <div class="bg-green-100 rounded-xl p-3">✅ Aktif<br><b id="aktif">-</b></div>
-      <div class="bg-red-100 rounded-xl p-3">✖️ Off<br><b id="off">-</b></div>
+<body class="bg-[#e8f5e9] min-h-screen">
+<div class="max-w-[420px] mx-auto p-4">
+  <div class="bg-white rounded-[24px] p-5 shadow-sm">
+    <div class="flex items-center gap-3">
+      <div class="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center text-white text-xl">🌐</div>
+      <div><h1 class="font-bold text-[18px]">IWONK NET - BOT PPPoE</h1><p class="text-xs text-gray-500">Mini App Management</p></div>
     </div>
   </div>
-
-  <div class="bg-white rounded-[20px] p-3 shadow">
-    <input id="nama" placeholder="Nama pelanggan, ex: Kamar" class="w-full border rounded-xl p-3 mb-3">
-    <div class="grid grid-cols-2 gap-2">
-      <button onclick="send('/cek '+val())" class="bg-blue-500 text-white p-3 rounded-xl">🔍 Cek</button>
-      <button onclick="send('/aktif')" class="bg-green-500 text-white p-3 rounded-xl">📊 Aktif</button>
-      <button onclick="send('/kick '+val())" class="bg-yellow-500 text-white p-3 rounded-xl">🦶 Kick</button>
-      <button onclick="send('/total')" class="bg-purple-500 text-white p-3 rounded-xl">📈 Total</button>
-      <button onclick="send('/hapus '+val())" class="bg-orange-500 text-white p-3 rounded-xl">🗑️ Hapus</button>
-      <button onclick="send('/hapusaktif '+val())" class="bg-red-500 text-white p-3 rounded-xl">💥 HapusAktif</button>
+  <div class="bg-white rounded-[24px] p-4 mt-4 shadow-sm">
+    <input id="nama" placeholder="Nama: Kamar" class="w-full bg-gray-50 border rounded-2xl p-3.5 text-[15px]">
+    <div class="grid grid-cols-2 gap-2.5 mt-4">
+      <button onclick="doAction('cek')" class="bg-blue-500 text-white font-bold py-3.5 rounded-2xl">🔍 CEK</button>
+      <button onclick="doAction('aktif')" class="bg-green-600 text-white font-bold py-3.5 rounded-2xl">📊 AKTIF</button>
+      <button onclick="doAction('kick')" class="bg-yellow-500 text-white font-bold py-3.5 rounded-2xl">🦶 KICK</button>
+      <button onclick="doAction('total')" class="bg-purple-600 text-white font-bold py-3.5 rounded-2xl">📈 TOTAL</button>
+      <button onclick="doAction('hapus')" class="bg-orange-500 text-white font-bold py-3.5 rounded-2xl">🗑️ HAPUS</button>
+      <button onclick="doAction('hapusaktif')" class="bg-red-600 text-white font-bold py-3.5 rounded-2xl">💥 HAPUS AKTIF</button>
     </div>
   </div>
 </div>
 <script>
-let tg = window.Telegram.WebApp; tg.expand();
-function val(){ return document.getElementById('nama').value.trim(); }
-function send(cmd){
-  if(!cmd || cmd.endsWith(' ')){ tg.showAlert('Isi nama dulu bos'); return; }
-  tg.sendData(cmd); // ini yang bakal kebaca MikroTik lu
-  tg.close();
+const tg = window.Telegram.WebApp; tg.expand();
+function getNama(){ return document.getElementById('nama').value.trim(); }
+function doAction(type){
+  const nama = getNama(); let cmd="";
+  if(type==='cek'){ if(!nama){ tg.showAlert('Isi nama dulu'); return;} cmd='/cek '+nama; }
+  else if(type==='kick'){ if(!nama){ tg.showAlert('Isi nama dulu'); return;} cmd='/kick '+nama; }
+  else if(type==='hapus'){ if(!nama){ tg.showAlert('Isi nama dulu'); return;} cmd='/hapus '+nama; }
+  else if(type==='hapusaktif'){ if(!nama){ tg.showAlert('Isi nama dulu'); return;} cmd='/hapusaktif '+nama; }
+  else if(type==='aktif') cmd='/aktif';
+  else if(type==='total') cmd='/total';
+  else cmd='/menu';
+  tg.sendData(cmd); setTimeout(()=>{ tg.close(); },300);
 }
 </script>
 </body>
