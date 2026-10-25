@@ -1,32 +1,75 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IWONK NET</title><script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://cdn.tailwindcss.com"></script></head>
-<body class="bg-green-50 p-4">
-<div class="max-w-[400px] mx-auto">
-<div class="bg-white rounded-2xl p-4 text-center font-bold">IWONK NET - BOT PPPoE</div>
-<input id="nama" placeholder="Nama: Kamar" class="w-full mt-4 p-3 rounded-xl border-2 border-yellow-400 outline-none">
-<div class="grid grid-cols-2 gap-2 mt-3">
-<button onclick="kirim('cek')" class="bg-blue-500 text-white p-3 rounded-xl font-bold">CEK</button>
-<button onclick="kirim('aktif')" class="bg-green-600 text-white p-3 rounded-xl font-bold">AKTIF</button>
-<button onclick="kirim('kick')" class="bg-yellow-500 text-white p-3 rounded-xl font-bold">KICK</button>
-<button onclick="kirim('total')" class="bg-purple-600 text-white p-3 rounded-xl font-bold">TOTAL</button>
-<button onclick="kirim('hapus')" class="bg-orange-500 text-white p-3 rounded-xl font-bold">HAPUS</button>
-<button onclick="kirim('hapusaktif')" class="bg-red-600 text-white p-3 rounded-xl font-bold">HAPUS AKTIF</button>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>IWONK NET - Manager</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800&display=swap" rel="stylesheet">
+<style>body{font-family:'Inter',sans-serif;background:#f0fdf4}.card{box-shadow:0 4px 20px rgba(0,0,0,0.06)}</style>
+</head>
+<body class="p-3 pb-24">
+<div class="max-w-[480px] mx-auto">
+<div class="bg-[#4CAF6D] rounded-[24px] p-5 text-white card">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-2"><div class="bg-white/20 p-2 rounded-xl">🛡️</div><h1 class="text-[28px] font-extrabold">IWONK NET</h1></div>
+<div class="bg-white text-[#2e7d4f] w-12 h-12 rounded-full flex items-center justify-center font-extrabold">AD</div>
+</div>
+<p class="text-right text-sm opacity-80 mt-1 font-semibold">ISP Manager • Dashboard</p>
+</div>
+<div class="grid grid-cols-2 gap-3 mt-4">
+<div class="bg-[#e6f4ea] rounded-2xl p-4 text-center card"><p class="text-sm">TOTAL</p><p id="stTotal" class="text-[42px] font-extrabold text-[#0a5c2f] leading-none">0</p><p class="text-sm">Pelanggan</p></div>
+<div class="bg-[#e6f4ea] rounded-2xl p-4 text-center card"><p class="text-sm">AKTIF</p><p id="stAktif" class="text-[42px] font-extrabold text-[#0a9b4a] leading-none">0</p><p class="text-sm">Online</p></div>
+<div class="bg-[#e6f4ea] rounded-2xl p-4 text-center card"><p class="text-sm">NONAKTIF</p><p id="stOff" class="text-[42px] font-extrabold text-[#0a5c2f] leading-none">0</p><p class="text-sm">Off</p></div>
+<div class="bg-[#e6f4ea] rounded-2xl p-4 text-center card"><p class="text-sm">TERKICK</p><p id="stKick" class="text-[42px] font-extrabold text-[#0a9b4a] leading-none">0</p><p class="text-sm">Kick</p></div>
+</div>
+<div class="mt-6"><h2 class="text-[#0a5c2f] font-extrabold text-xl mb-3">Daftar Pelanggan PPPoE</h2>
+<div class="flex gap-2">
+<input id="q" oninput="render()" placeholder="Cari nama, PPPoE, atau IP..." class="flex-1 bg-[#e6f4ea] rounded-full px-5 py-3 outline-none border-2 border-transparent focus:border-[#4CAF6D]">
+<button onclick="addPelanggan()" class="bg-[#4CAF6D] text-white px-5 rounded-full font-bold">+ TAMBAH</button>
 </div></div>
+<div id="list" class="mt-4 space-y-3"></div>
+<div class="mt-6 bg-white rounded-2xl p-4 card">
+<h3 class="font-bold text-[#0a5c2f]">Generator Perintah MikroTik</h3>
+<p class="text-xs text-gray-500">Hasil KICK/HAPUS/CEK muncul di sini, tinggal copy ke Terminal</p>
+<textarea id="cmdOut" class="w-full mt-2 bg-black text-green-400 p-3 rounded-xl text-xs h-24" readonly>/ppp active print</textarea>
+<button onclick="copyCmd()" class="mt-2 w-full bg-black text-white py-2 rounded-xl">COPY COMMAND</button>
+</div>
+<div class="mt-4 flex gap-2">
+<button onclick="exportData()" class="flex-1 bg-white border py-2 rounded-xl font-bold">EXPORT</button>
+<label class="flex-1 bg-white border py-2 rounded-xl font-bold text-center cursor-pointer">IMPORT<input type="file" id="importFile" hidden onchange="importData(event)"></label>
+<button onclick="resetData()" class="flex-1 bg-red-50 text-red-600 border py-2 rounded-xl font-bold">RESET</button>
+</div>
+</div>
 <script>
-const tg = window.Telegram.WebApp;
-tg.ready();
-tg.expand();
-function kirim(t){
- let n=document.getElementById('nama').value.trim();
- let cmd="";
- if(t=='cek'){if(!n){alert('Isi nama dulu bos!');return;}cmd='/cek '+n;}
- else if(t=='kick'){if(!n){alert('Isi nama dulu!');return;}cmd='/kick '+n;}
- else if(t=='hapus'){if(!n){alert('Isi nama dulu!');return;}cmd='/hapus '+n;}
- else if(t=='hapusaktif'){if(!n){alert('Isi nama dulu!');return;}cmd='/hapusaktif '+n;}
- else if(t=='aktif')cmd='/aktif';
- else if(t=='total')cmd='/total';
- tg.sendData(cmd);
- setTimeout(()=>{tg.close();},500);
+let data=JSON.parse(localStorage.getItem('iwonk_data')||'[]');
+if(data.length===0){data=[{name:"Budi Santoso",pppoe:"budi.s",ip:"192.168.1.45",paket:"50 Mbps",status:"Online"},{name:"Siti Rahma",pppoe:"siti.r",ip:"192.168.1.52",paket:"30 Mbps",status:"Offline"},{name:"Kamar",pppoe:"kamar",ip:"10.10.10.2",paket:"20 Mbps",status:"Online"}];save()}
+let kickCount=parseInt(localStorage.getItem('iwonk_kick')||'0');
+function save(){localStorage.setItem('iwonk_data',JSON.stringify(data));localStorage.setItem('iwonk_kick',kickCount)}
+function render(){
+const q=document.getElementById('q').value.toLowerCase();
+const list=document.getElementById('list');
+const filtered=data.filter(d=>d.name.toLowerCase().includes(q)||d.pppoe.toLowerCase().includes(q)||d.ip.includes(q));
+list.innerHTML='';
+filtered.forEach(d=>{
+const idx=data.indexOf(d);const online=d.status==='Online';
+list.innerHTML+=`<div class="bg-white rounded-2xl p-4 card flex justify-between items-center"><div><span class="text-xs ${online?'bg-green-100 text-green-700':'bg-gray-200'} px-2 py-1 rounded-full">● ${online?'Online':'Offline'}</span><p class="font-extrabold mt-1">${d.name}</p><p class="text-sm text-gray-600">pppoe: ${d.pppoe} • ${d.ip}</p><p class="text-xs bg-[#e6f4ea] inline-block px-2 py-1 rounded-full mt-1">${d.paket}</p></div><div class="grid grid-cols-2 gap-1"><button onclick="cek(${idx})" class="border-2 border-[#4CAF6D] text-xs font-bold px-3 py-2 rounded-lg">CEK</button><button onclick="toggle(${idx})" class="bg-[#0a9b4a] text-white text-xs font-bold px-3 py-2 rounded-lg">AKTIF</button><button onclick="kick(${idx})" class="border border-orange-400 text-orange-600 text-xs font-bold px-3 py-2 rounded-lg">KICK</button><button onclick="hapus(${idx})" class="border border-red-500 text-red-600 text-xs font-bold px-3 py-2 rounded-lg">HAPUS</button></div></div>`;
+});
+document.getElementById('stTotal').innerText=data.length;
+document.getElementById('stAktif').innerText=data.filter(x=>x.status==='Online').length;
+document.getElementById('stOff').innerText=data.filter(x=>x.status==='Offline').length;
+document.getElementById('stKick').innerText=kickCount;
 }
-</script></body></html>
+function cek(i){const d=data[i];alert(`CEK: ${d.name}\nPPPoE: ${d.pppoe}\nIP: ${d.ip}\nPaket: ${d.paket}\nStatus: ${d.status}`);document.getElementById('cmdOut').value=`/ppp active print where name=${d.pppoe}\n/ppp secret print where name=${d.pppoe}`}
+function toggle(i){data[i].status=data[i].status==='Online'?'Offline':'Online';save();render()}
+function kick(i){const d=data[i];kickCount++;d.status='Offline';document.getElementById('cmdOut').value=`/ppp active remove [find where name=${d.pppoe}]`;save();render()}
+function hapus(i){if(!confirm('Hapus '+data[i].name+'?'))return;const d=data[i];document.getElementById('cmdOut').value=`/ppp active remove [find where name=${d.pppoe}]\n/ppp secret remove [find where name=${d.pppoe}]`;data.splice(i,1);save();render()}
+function addPelanggan(){const name=prompt('Nama:');if(!name)return;const pppoe=prompt('PPPoE:');if(!pppoe)return;const ip=prompt('IP:')||'0.0.0.0';const paket=prompt('Paket:')||'50 Mbps';data.push({name,pppoe,ip,paket,status:'Online'});save();render();document.getElementById('cmdOut').value=`/ppp secret add name=${pppoe} password=123456 profile=default service=pppoe`}
+function copyCmd(){navigator.clipboard.writeText(document.getElementById('cmdOut').value);alert('Copied!')}
+function exportData(){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='iwonk-backup.json';a.click()}
+function importData(e){const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=function(){try{data=JSON.parse(r.result);save();render();alert('Import OK')}catch{alert('File rusak')}};r.readAsText(file)}
+function resetData(){if(confirm('Reset?')){data=[];kickCount=0;save();render()}}
+render();
+</script>
+</body>
+</html>
