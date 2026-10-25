@@ -2,74 +2,124 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>IWONK NET - Manager</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IWONK NET - LIVE</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800&display=swap" rel="stylesheet">
-<style>body{font-family:'Inter',sans-serif;background:#f0fdf4}.card{box-shadow:0 4px 20px rgba(0,0,0,0.06)}</style>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@700;800&display=swap" rel="stylesheet">
+<style>body{font-family:Inter,sans-serif;background:#f0fdf4}</style>
 </head>
-<body class="p-3 pb-24">
+<body class="p-3">
 <div class="max-w-[480px] mx-auto">
-<div class="bg-[#4CAF6D] rounded-[24px] p-5 text-white card">
-<div class="flex justify-between items-center">
-<div class="flex items-center gap-2"><div class="bg-white/20 p-2 rounded-xl">🛡️</div><h1 class="text-[28px] font-extrabold">IWONK NET</h1></div>
-<div class="bg-white text-[#2e7d4f] w-12 h-12 rounded-full flex items-center justify-center font-extrabold">AD</div>
+<div class="bg-[#4CAF6D] rounded-[24px] p-5 text-white">
+<h1 class="text-2xl font-extrabold">IWONK NET • LIVE</h1>
+<p id="connStatus" class="text-sm opacity-80">Belum konek - Buka Pengaturan</p>
 </div>
-<p class="text-right text-sm opacity-80 mt-1 font-semibold">ISP Manager • Dashboard</p>
+
+<div class="bg-white rounded-2xl p-4 mt-4 shadow">
+<h3 class="font-bold text-[#0a5c2f]">⚙️ PENGATURAN MIKROTIK</h3>
+<input id="host" value="sin22.tunnel.id:3113" class="w-full mt-2 bg-gray-100 p-3 rounded-xl text-sm" placeholder="sin22.tunnel.id:3113">
+<input id="user" value="iwonk-api" class="w-full mt-2 bg-gray-100 p-3 rounded-xl text-sm" placeholder="Username API">
+<input id="pass" type="password" value="Iwonk12345" class="w-full mt-2 bg-gray-100 p-3 rounded-xl text-sm" placeholder="Password API">
+<div class="flex gap-2 mt-3">
+<button onclick="saveSet()" class="flex-1 bg-[#4CAF6D] text-white py-3 rounded-xl font-bold">SIMPAN & KONEK</button>
+<button onclick="testConn()" class="flex-1 bg-black text-white py-3 rounded-xl font-bold">TEST</button>
 </div>
+<p class="text-[10px] text-gray-400 mt-2">Host lu: sin22.tunnel.id:3113 | Pakai https:// di depan otomatis</p>
+</div>
+
 <div class="grid grid-cols-2 gap-3 mt-4">
-<div class="bg-[#e6f4ea] rounded-2xl p-4 text-center card"><p class="text-sm">TOTAL</p><p id="stTotal" class="text-[42px] font-extrabold text-[#0a5c2f] leading-none">0</p><p class="text-sm">Pelanggan</p></div>
-<div class="bg-[#e6f4ea] rounded-2xl p-4 text-center card"><p class="text-sm">AKTIF</p><p id="stAktif" class="text-[42px] font-extrabold text-[#0a9b4a] leading-none">0</p><p class="text-sm">Online</p></div>
-<div class="bg-[#e6f4ea] rounded-2xl p-4 text-center card"><p class="text-sm">NONAKTIF</p><p id="stOff" class="text-[42px] font-extrabold text-[#0a5c2f] leading-none">0</p><p class="text-sm">Off</p></div>
-<div class="bg-[#e6f4ea] rounded-2xl p-4 text-center card"><p class="text-sm">TERKICK</p><p id="stKick" class="text-[42px] font-extrabold text-[#0a9b4a] leading-none">0</p><p class="text-sm">Kick</p></div>
+<div class="bg-[#e6f4ea] rounded-2xl p-4 text-center"><p class="text-xs">TOTAL</p><p id="stTotal" class="text-3xl font-extrabold">-</p></div>
+<div class="bg-[#e6f4ea] rounded-2xl p-4 text-center"><p class="text-xs">AKTIF</p><p id="stAktif" class="text-3xl font-extrabold text-green-600">-</p></div>
 </div>
-<div class="mt-6"><h2 class="text-[#0a5c2f] font-extrabold text-xl mb-3">Daftar Pelanggan PPPoE</h2>
-<div class="flex gap-2">
-<input id="q" oninput="render()" placeholder="Cari nama, PPPoE, atau IP..." class="flex-1 bg-[#e6f4ea] rounded-full px-5 py-3 outline-none border-2 border-transparent focus:border-[#4CAF6D]">
-<button onclick="addPelanggan()" class="bg-[#4CAF6D] text-white px-5 rounded-full font-bold">+ TAMBAH</button>
-</div></div>
-<div id="list" class="mt-4 space-y-3"></div>
-<div class="mt-6 bg-white rounded-2xl p-4 card">
-<h3 class="font-bold text-[#0a5c2f]">Generator Perintah MikroTik</h3>
-<p class="text-xs text-gray-500">Hasil KICK/HAPUS/CEK muncul di sini, tinggal copy ke Terminal</p>
-<textarea id="cmdOut" class="w-full mt-2 bg-black text-green-400 p-3 rounded-xl text-xs h-24" readonly>/ppp active print</textarea>
-<button onclick="copyCmd()" class="mt-2 w-full bg-black text-white py-2 rounded-xl">COPY COMMAND</button>
-</div>
+
 <div class="mt-4 flex gap-2">
-<button onclick="exportData()" class="flex-1 bg-white border py-2 rounded-xl font-bold">EXPORT</button>
-<label class="flex-1 bg-white border py-2 rounded-xl font-bold text-center cursor-pointer">IMPORT<input type="file" id="importFile" hidden onchange="importData(event)"></label>
-<button onclick="resetData()" class="flex-1 bg-red-50 text-red-600 border py-2 rounded-xl font-bold">RESET</button>
+<input id="q" oninput="render()" placeholder="Cari nama/IP..." class="flex-1 bg-white rounded-full px-5 py-3 shadow">
+<button onclick="loadData()" class="bg-[#4CAF6D] text-white px-5 rounded-full font-bold">REFRESH</button>
 </div>
+
+<div id="list" class="mt-4 space-y-2"></div>
+<div id="log" class="mt-4 bg-black text-green-400 p-3 rounded-xl text-[11px] h-32 overflow-auto">Log: Siap...</div>
 </div>
+
 <script>
-let data=JSON.parse(localStorage.getItem('iwonk_data')||'[]');
-if(data.length===0){data=[{name:"Budi Santoso",pppoe:"budi.s",ip:"192.168.1.45",paket:"50 Mbps",status:"Online"},{name:"Siti Rahma",pppoe:"siti.r",ip:"192.168.1.52",paket:"30 Mbps",status:"Offline"},{name:"Kamar",pppoe:"kamar",ip:"10.10.10.2",paket:"20 Mbps",status:"Online"}];save()}
-let kickCount=parseInt(localStorage.getItem('iwonk_kick')||'0');
-function save(){localStorage.setItem('iwonk_data',JSON.stringify(data));localStorage.setItem('iwonk_kick',kickCount)}
-function render(){
-const q=document.getElementById('q').value.toLowerCase();
-const list=document.getElementById('list');
-const filtered=data.filter(d=>d.name.toLowerCase().includes(q)||d.pppoe.toLowerCase().includes(q)||d.ip.includes(q));
-list.innerHTML='';
-filtered.forEach(d=>{
-const idx=data.indexOf(d);const online=d.status==='Online';
-list.innerHTML+=`<div class="bg-white rounded-2xl p-4 card flex justify-between items-center"><div><span class="text-xs ${online?'bg-green-100 text-green-700':'bg-gray-200'} px-2 py-1 rounded-full">● ${online?'Online':'Offline'}</span><p class="font-extrabold mt-1">${d.name}</p><p class="text-sm text-gray-600">pppoe: ${d.pppoe} • ${d.ip}</p><p class="text-xs bg-[#e6f4ea] inline-block px-2 py-1 rounded-full mt-1">${d.paket}</p></div><div class="grid grid-cols-2 gap-1"><button onclick="cek(${idx})" class="border-2 border-[#4CAF6D] text-xs font-bold px-3 py-2 rounded-lg">CEK</button><button onclick="toggle(${idx})" class="bg-[#0a9b4a] text-white text-xs font-bold px-3 py-2 rounded-lg">AKTIF</button><button onclick="kick(${idx})" class="border border-orange-400 text-orange-600 text-xs font-bold px-3 py-2 rounded-lg">KICK</button><button onclick="hapus(${idx})" class="border border-red-500 text-red-600 text-xs font-bold px-3 py-2 rounded-lg">HAPUS</button></div></div>`;
-});
-document.getElementById('stTotal').innerText=data.length;
-document.getElementById('stAktif').innerText=data.filter(x=>x.status==='Online').length;
-document.getElementById('stOff').innerText=data.filter(x=>x.status==='Offline').length;
-document.getElementById('stKick').innerText=kickCount;
+let S = JSON.parse(localStorage.getItem('iwonk_live_set')||'{"host":"sin22.tunnel.id:3113","user":"iwonk-api","pass":"Iwonk12345"}');
+document.getElementById('host').value=S.host;document.getElementById('user').value=S.user;document.getElementById('pass').value=S.pass;
+let pppActive=[], pppSecret=[];
+
+function getBase(){
+let h=S.host.trim(); if(!h.startsWith('http')) h='http://'+h;
+return h.replace(/\/$/,'');
 }
-function cek(i){const d=data[i];alert(`CEK: ${d.name}\nPPPoE: ${d.pppoe}\nIP: ${d.ip}\nPaket: ${d.paket}\nStatus: ${d.status}`);document.getElementById('cmdOut').value=`/ppp active print where name=${d.pppoe}\n/ppp secret print where name=${d.pppoe}`}
-function toggle(i){data[i].status=data[i].status==='Online'?'Offline':'Online';save();render()}
-function kick(i){const d=data[i];kickCount++;d.status='Offline';document.getElementById('cmdOut').value=`/ppp active remove [find where name=${d.pppoe}]`;save();render()}
-function hapus(i){if(!confirm('Hapus '+data[i].name+'?'))return;const d=data[i];document.getElementById('cmdOut').value=`/ppp active remove [find where name=${d.pppoe}]\n/ppp secret remove [find where name=${d.pppoe}]`;data.splice(i,1);save();render()}
-function addPelanggan(){const name=prompt('Nama:');if(!name)return;const pppoe=prompt('PPPoE:');if(!pppoe)return;const ip=prompt('IP:')||'0.0.0.0';const paket=prompt('Paket:')||'50 Mbps';data.push({name,pppoe,ip,paket,status:'Online'});save();render();document.getElementById('cmdOut').value=`/ppp secret add name=${pppoe} password=123456 profile=default service=pppoe`}
-function copyCmd(){navigator.clipboard.writeText(document.getElementById('cmdOut').value);alert('Copied!')}
-function exportData(){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='iwonk-backup.json';a.click()}
-function importData(e){const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=function(){try{data=JSON.parse(r.result);save();render();alert('Import OK')}catch{alert('File rusak')}};r.readAsText(file)}
-function resetData(){if(confirm('Reset?')){data=[];kickCount=0;save();render()}}
+function getAuth(){return 'Basic '+btoa(S.user+':'+S.pass)}
+function log(t){document.getElementById('log').innerHTML+= '<br>'+t; document.getElementById('log').scrollTop=9999}
+function saveSet(){
+S={host:document.getElementById('host').value, user:document.getElementById('user').value, pass:document.getElementById('pass').value};
+localStorage.setItem('iwonk_live_set',JSON.stringify(S));
+log('Setting disimpan: '+getBase()); testConn();
+}
+
+async function api(path, method='GET', body=null){
+let url=getBase()+'/rest'+path;
+let opt={method, headers:{'Authorization':getAuth(),'Content-Type':'application/json'}, mode:'cors'};
+if(body) opt.body=JSON.stringify(body);
+try{
+let r=await fetch(url, opt);
+if(!r.ok){let txt=await r.text(); throw new Error(r.status+' '+txt)}
+return await r.json();
+}catch(e){log('❌ API Error '+path+': '+e.message); throw e}
+}
+
+async function testConn(){
+log('Test konek ke '+getBase()+' ...');
+try{
+let res=await api('/system/resource');
+document.getElementById('connStatus').innerText='✅ Konek - '+res['board-name']+' Uptime '+res.uptime;
+log('✅ Konek OK: '+res['board-name']);
+loadData();
+}catch(e){document.getElementById('connStatus').innerText='❌ Gagal konek - Cek IP/user/pass & CORS' }
+}
+
+async function loadData(){
+log('Load PPPoE...');
+try{
+pppActive=await api('/ppp/active');
+pppSecret=await api('/ppp/secret');
+document.getElementById('stTotal').innerText=pppSecret.length;
+document.getElementById('stAktif').innerText=pppActive.length;
 render();
+log('✅ Load OK - Aktif:'+pppActive.length+' Total:'+pppSecret.length);
+}catch(e){log('Gagal load, cek tunnel & enable api-ssl')}
+}
+
+function render(){
+let q=document.getElementById('q').value.toLowerCase();
+let list=document.getElementById('list'); list.innerHTML='';
+let show=pppActive.filter(a=> (a.name||'').toLowerCase().includes(q) || (a.address||'').includes(q));
+show.slice(0,50).forEach(a=>{
+list.innerHTML+=`<div class="bg-white p-3 rounded-2xl shadow flex justify-between"><div><p class="font-bold">${a.name}</p><p class="text-xs text-gray-500">${a.address} • ${a.uptime} • ${a['caller-id']||''}</p></div><div class="flex gap-1"><button onclick="kick('${a.name}')" class="bg-orange-500 text-white px-3 py-2 rounded-lg text-xs">KICK</button><button onclick="hapus('${a.name}')" class="bg-red-600 text-white px-3 py-2 rounded-lg text-xs">HAPUS</button></div></div>`;
+});
+if(show.length===0 && pppActive.length>0) list.innerHTML='<p class="text-center text-sm text-gray-400">Tidak ada hasil</p>';
+}
+
+async function kick(name){
+if(!confirm('Kick '+name+'?')) return;
+log('Kick '+name+'...');
+try{await api('/ppp/active/remove', 'POST', {'.id': pppActive.find(x=>x.name===name)?.['.id'] || name}); log('✅ Kick OK'); loadData();}catch(e){ // fallback by name
+try{let act=pppActive.find(x=>x.name===name); if(act) await api('/ppp/active/'+act['.id'], 'DELETE'); log('✅ Kick OK'); loadData();}catch(e2){log('Kick gagal: '+e2.message)}
+}
+}
+async function hapus(name){
+if(!confirm('HAPUS secret '+name+'? Ini hapus permanen!')) return;
+log('Hapus '+name+'...');
+try{
+let sec=pppSecret.find(x=>x.name===name);
+if(sec) await api('/ppp/secret/'+sec['.id'], 'DELETE');
+let act=pppActive.find(x=>x.name===name);
+if(act) try{await api('/ppp/active/'+act['.id'], 'DELETE');}catch{}
+log('✅ Hapus OK'); loadData();
+}catch(e){log('Hapus gagal: '+e.message)}
+}
+loadData();
 </script>
 </body>
 </html>
